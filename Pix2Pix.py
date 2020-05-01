@@ -18,7 +18,7 @@ from keras.layers import Dropout
 from keras.layers import BatchNormalization
 from keras.layers import LeakyReLU
 from keras.utils import multi_gpu_model
-model = multi_gpu_model(model, gpus=4) #in this case the number of GPus is 4
+
 
 from matplotlib import pyplot
 import sys
@@ -65,6 +65,7 @@ def define_discriminator(image_shape):
     patch_out = Activation('sigmoid')(d)
     # define model
     model = Model([in_src_image, in_target_image], patch_out)
+    model = multi_gpu_model(model, gpus=4) #in this case the number of GPus is 4
     # compile model
     opt = Adam(lr=0.0002, beta_1=0.5)
     model.compile(loss='binary_crossentropy', optimizer=opt, loss_weights=[0.5])
@@ -130,6 +131,7 @@ def define_generator(image_shape=(256,256,3)):
     out_image = Activation('tanh')(g)
     # define model
     model = Model(in_image, out_image)
+    model = multi_gpu_model(model, gpus=4) #in this case the number of GPus is 4
     return model
 
 # define the combined generator and discriminator model, for updating the generator
@@ -144,9 +146,11 @@ def define_gan(g_model, d_model, image_shape):
     dis_out = d_model([in_src, gen_out])
     # src image as input, generated image and classification output
     model = Model(in_src, [dis_out, gen_out])
+    model = multi_gpu_model(model, gpus=4) #in this case the number of GPus is 4
     # compile model
     opt = Adam(lr=0.0002, beta_1=0.5)
     model.compile(loss=['binary_crossentropy', 'mae'], optimizer=opt, loss_weights=[1,100])
+    
     return model
 
 # load and prepare training images
