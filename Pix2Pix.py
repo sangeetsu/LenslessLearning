@@ -24,7 +24,7 @@ from keras.layers import LeakyReLU
 
 from matplotlib import pyplot
 import sys
-sys.stdout = open('stdout.txt', 'w')
+# sys.stdout = open('stdout.txt', 'w')
 import os
 
 config = tf.ConfigProto(log_device_placement=True)
