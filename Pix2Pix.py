@@ -27,9 +27,9 @@ import sys
 sys.stdout = open('stdout.txt', 'w')
 import os
 
-config = tf.ConfigProto()
+config = tf.ConfigProto(log_device_placement=True)
 config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.9
+# config.gpu_options.per_process_gpu_memory_fraction = 0.9
 tf.keras.backend.set_session(tf.Session(config=config))
 
 # physical_devices = tf.config.experimental.list_physical_devices('GPU')
@@ -236,7 +236,7 @@ def summarize_performance(step, g_model, n_samples=3):
     print('>Saved: %s and %s' % (filename1, filename2))
 
 # train pix2pix models
-def train(d_model, g_model, gan_model, n_epochs=300, n_batch=1):
+def train(d_model, g_model, gan_model, n_epochs=100, n_batch=1):
     # determine the output square shape of the discriminator
     n_patch = d_model.output_shape[1]
     # unpack dataset
@@ -251,11 +251,14 @@ def train(d_model, g_model, gan_model, n_epochs=300, n_batch=1):
         [X_realA, X_realB], y_real = generate_real_samples(n_batch, n_patch)
         print(X_realA[0].shape)
         print(X_realB[0].shape)
-        X_fakeB, y_fake = generate_fake_samples(g_model, X_realA, n_patch)
+        with tf.device('/gpu:0'):
+            X_fakeB, y_fake = generate_fake_samples(g_model, X_realA, n_patch)
         # update discriminator for real samples
-        d_loss1 = d_model.train_on_batch([X_realA, X_realB], y_real)
+        with tf.device('/gpu:1'):
+            d_loss1 = d_model.train_on_batch([X_realA, X_realB], y_real)
         # update discriminator for generated samples
-        d_loss2 = d_model.train_on_batch([X_realA, X_fakeB], y_fake)
+        with tf.device('/gpu:2'):
+            d_loss2 = d_model.train_on_batch([X_realA, X_fakeB], y_fake)
         # update the generator
         X_realA = np.reshape(X_realA[0], (1,256,256,3))
         X_realB = np.reshape(X_realB[0], (1,256,256,3))
@@ -263,13 +266,14 @@ def train(d_model, g_model, gan_model, n_epochs=300, n_batch=1):
         # print(">>>>>>", X_realB.shape)
         print(">>>>>", y_real.shape)
         # sys.exit()
-        g_loss, _, _ = gan_model.train_on_batch(X_realA, [y_real, X_realB])
+        with tf.device('/gpu:3'):
+            g_loss, _, _ = gan_model.train_on_batch(X_realA, [y_real, X_realB])
         # summarize performance
         print('>%d, d1[%.3f] d2[%.3f] g[%.3f]' % (i+1, d_loss1, d_loss2, g_loss))
         # summarize model performance
         # if (i+1) % (bat_per_epo * 10) == 0:
         #     summarize_performance(i, g_model)
-        if (i+1) % (500000) == 0:
+        if (i+1) % (100000) == 0:
             filename2 = 'model_%08d.h5' % (i+1)
             g_model.save(filename2)
     filename1 = 'model_%06d.h5' % (n_steps)
