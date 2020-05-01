@@ -259,8 +259,8 @@ def train(d_model, g_model, gan_model, n_epochs=300, n_batch=1):
         # summarize model performance
         # if (i+1) % (bat_per_epo * 10) == 0:
         #     summarize_performance(i, g_model)
-        if (i+1) % (10000) == 0:
-            filename2 = 'model_%06d.h5' % (i+1)
+        if (i+1) % (500000) == 0:
+            filename2 = 'model_%08d.h5' % (i+1)
             g_model.save(filename2)
     filename1 = 'model_%06d.h5' % (n_steps)
     g_model.save(filename1)
