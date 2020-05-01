@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import tensorflow as tf
 from numpy import load
 from numpy import zeros
 from numpy import ones
@@ -20,6 +21,9 @@ from matplotlib import pyplot
 import sys
 sys.stdout = open('stdout.txt', 'w')
 import os
+
+physical_devices = tf.config.experimental.list_physical_devices(‘GPU’)
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 # define the discriminator model
 def define_discriminator(image_shape):
