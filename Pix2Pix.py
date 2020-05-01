@@ -262,8 +262,8 @@ def train(d_model, g_model, gan_model, n_epochs=300, n_batch=1):
 # load image data
 # dir_truth = "../Data/Dataset/ground_truth_lensed/"
 # dir_diffuser = "../Data/Dataset/diffuser_images/"
-dir_truth = "/media/sangeetsu/6A5CA2733E91E71B/dataset/ground_truth_lensed/"
-dir_diffuser = "/media/sangeetsu/6A5CA2733E91E71B/dataset/diffuser_images/"
+dir_truth = "/home/unet_dataset/data/dataset/ground_truth_lensed/"
+dir_diffuser = "/home/unet_dataset/data/dataset/diffuser_images/"
 
 img_truth = []
 img_diffuser = []
