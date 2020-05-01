@@ -17,6 +17,9 @@ from keras.layers import Concatenate
 from keras.layers import Dropout
 from keras.layers import BatchNormalization
 from keras.layers import LeakyReLU
+from keras.utils import multi_gpu_model
+model = multi_gpu_model(model, gpus=4) #in this case the number of GPus is 4
+
 from matplotlib import pyplot
 import sys
 sys.stdout = open('stdout.txt', 'w')
